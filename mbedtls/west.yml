@@ -1,0 +1,26 @@
+manifest:
+  defaults:
+    remote: fjblanco
+  remotes:
+    - name: fjblanco
+      url-base: https://github.com/fj-blanco
+    - name: libcoap-official
+      url-base: https://github.com/obgm
+  projects:
+    - name: zephyr
+      remote: fjblanco
+      repo-path: zephyr
+      revision: entropy-pool-v4.3.0
+      path: zephyr
+      import:
+        name-allowlist:
+          - hal_espressif
+          - mbedtls
+          - picolibc
+    - name: libcoap
+      remote: libcoap-official
+      repo-path: libcoap
+      revision: 0bf6a2d7
+      path: modules/lib/libcoap
+  self:
+    path: .

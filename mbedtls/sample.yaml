@@ -1,0 +1,4 @@
+common:
+sample:
+  description: ESP32 QEaaS entropy pool + CoAP client
+  name: QEaaS entropy pool CoAP client

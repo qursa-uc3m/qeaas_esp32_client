@@ -1,0 +1,12 @@
+# Zephyr build outputs
+.west/
+bootloader/
+modules/
+tools/
+zephyr/
+mbedtls/build/
+wolfssl/build/
+# Certificates
+certs/
+
+.venv/
