@@ -1,0 +1,22 @@
+manifest:
+  defaults:
+    remote: fjblanco
+  remotes:
+    - name: fjblanco
+      url-base: https://github.com/fj-blanco
+    - name: libcoap-custom
+      url-base: https://github.com/fj-blanco/libcoap
+  projects:
+    # Use remote Zephyr fork (entropy-pool branch) instead of local repo
+    - name: zephyr
+      remote: fjblanco
+      repo-path: zephyr
+      revision: entropy-pool
+      path: zephyr
+      import: true
+    - name: libcoap
+      url: https://github.com/fj-blanco/libcoap.git
+      revision: zephyr_pr
+      path: modules/lib/libcoap
+  self:
+    path: .

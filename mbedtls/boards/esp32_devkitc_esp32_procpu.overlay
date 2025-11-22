@@ -1,0 +1,20 @@
+/*
+ * BLAKE2s Entropy Pool Device Tree Overlay for ESP32
+ * 
+ * This overlay configures the BLAKE2s entropy pool as the chosen
+ * entropy source, wrapping the ESP32 hardware TRNG.
+ */
+
+/ {
+	chosen {
+		/* Use BLAKE2s pool as main entropy source */
+		zephyr,entropy = &entropy_blake2s;
+	};
+
+	/* BLAKE2s entropy pool wrapping ESP32 hardware TRNG */
+	entropy_blake2s: entropy-blake2s-pool {
+		compatible = "zephyr,entropy-blake2s-pool";
+		hardware-device = <&trng0>;  /* ESP32 hardware TRNG backend */
+		status = "okay";
+	};
+};
