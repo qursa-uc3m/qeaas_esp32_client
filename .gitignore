@@ -9,4 +9,7 @@ wolfssl/build/
 # Certificates
 certs/
 
+# Secrets and local dependencies
+.env
 .venv/
+qeaas-server/

@@ -1,0 +1,34 @@
+manifest:
+  defaults:
+    remote: zephyrproject
+  
+  remotes:
+    - name: fjblanco
+      url-base: https://github.com/fj-blanco
+    - name: zephyrproject
+      url-base: https://github.com/zephyrproject-rtos
+    - name: libcoap-custom
+      url-base: https://github.com/fj-blanco/libcoap
+    - name: wolfssl
+      url-base: https://github.com/wolfssl
+  
+  projects:
+    # Zephyr v4.1.0 fork with BLAKE2s entropy pool driver
+    - name: zephyr
+      remote: fjblanco
+      repo-path: zephyr
+      revision: 028d1947465c192509694cc1b8b5ef6bc7e1bad1
+      path: zephyr
+      import: true
+    - name: libcoap
+      url: https://github.com/fj-blanco/libcoap.git
+      revision: 5b4767d6b1542efcbd98ae689dac9e50549ed490  # zephyr_wolfssl_esp32_opt
+      path: modules/lib/libcoap
+    - name: wolfssl
+      remote: wolfssl
+      repo-path: wolfssl
+      revision: v5.8.2-stable
+      path: modules/crypto/wolfssl
+  
+  self:
+    path: .

@@ -1,0 +1,24 @@
+/*
+ * Copyright (c) 2022 Espressif Systems (Shanghai) Co., Ltd.
+ * Copyright (C) 2024-2025 Javier Blanco-Romero @fj-blanco (UC3M, QURSA project)
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+&wifi {
+	status = "okay";
+};
+
+/ {
+	chosen {
+		/* Use BLAKE2s pool as main entropy source */
+		zephyr,entropy = &entropy_blake2s;
+	};
+
+	/* BLAKE2s entropy pool wrapping ESP32 hardware TRNG */
+	entropy_blake2s: entropy-blake2s-pool {
+		compatible = "zephyr,entropy-blake2s-pool";
+		hardware-device = <&trng0>;  /* ESP32 hardware TRNG backend */
+		status = "okay";
+	};
+};

@@ -1,4 +1,4 @@
 common:
 sample:
-  description: ESP32 QEaaS entropy pool + CoAP client
-  name: QEaaS entropy pool CoAP client
+  description: ESP32 libcoap minimal client
+  name: Zephyr libcoap mininmal client

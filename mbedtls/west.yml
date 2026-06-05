@@ -4,23 +4,19 @@ manifest:
   remotes:
     - name: fjblanco
       url-base: https://github.com/fj-blanco
-    - name: libcoap-official
-      url-base: https://github.com/obgm
+    - name: libcoap-custom
+      url-base: https://github.com/fj-blanco/libcoap
   projects:
+    # Use remote Zephyr fork (entropy-pool branch) instead of local repo
     - name: zephyr
       remote: fjblanco
       repo-path: zephyr
-      revision: entropy-pool-v4.3.0
+      revision: entropy-pool
       path: zephyr
-      import:
-        name-allowlist:
-          - hal_espressif
-          - mbedtls
-          - picolibc
+      import: true
     - name: libcoap
-      remote: libcoap-official
-      repo-path: libcoap
-      revision: 0bf6a2d7
+      url: https://github.com/fj-blanco/libcoap.git
+      revision: zephyr_pr
       path: modules/lib/libcoap
   self:
     path: .

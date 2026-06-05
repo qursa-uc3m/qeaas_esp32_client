@@ -1,71 +1,96 @@
 # QEaaS ESP32 Client
 
-Quantum Entropy as a Service (QEaaS) client for ESP32 using Zephyr RTOS. It retrieves quantum entropy over CoAP and mixes it with local hardware entropy in a custom BLAKE2s pool (Linux 5.17+ RNG inspired) and exposes a new system call for entropy injection.
+Quantum Entropy as a Service (QEaaS) client and entropy-pool validation
+applications for ESP32 using Zephyr RTOS.
 
-## Core
+The wolfSSL application retrieves quantum entropy over CoAP/DTLS and mixes it
+with local hardware entropy in the custom BLAKE2s entropy pool. It supports
+P-256, X25519, ML-KEM key exchange, ECDSA P-256 authentication, and ML-DSA-44
+authentication.
 
-* BLAKE2s entropy pool (`entropy_blake2s.c`) + Zephyr entropy API
-* Entropy ingestion via CoAP client → `entropy_add_entropy()`
+## Companion Publications
 
-This client depends on a Zephyr fork ([fj-blanco/zephyr@entropy-pool](https://github.com/fj-blanco/zephyr/tree/entropy-pool)) that includes the custom BLAKE2s entropy pool driver. The `west.yml` manifest pulls this branch automatically.
+This repository accompanies *Post-Quantum Entropy as a Service for Embedded
+Systems*: the UCAmI 2025 workshop paper, its extended
+[arXiv preprint](https://arxiv.org/abs/2603.10274), and the published extended
+article in *Sensors*, **26**(9), 2737 (2026).
 
-## Architecture
+## Applications
 
-```text
-Application (main.c)
-    ↓ entropy_get_entropy()
-BLAKE2s Entropy Pool (entropy_blake2s.c)
-    ↓ entropy_get_entropy() on backend_dev
-Hardware Entropy Driver (e.g. ESP32 TRNG)
-    ↓ hardware registers
-Physical Entropy Source
-```
+- `wolfssl/`: CoAP/DTLS QEaaS client using wolfSSL.
+- `mbedtls/`: BLAKE2s entropy-pool validation application from the development
+  repository.
 
-## Setup
+Both applications use the Zephyr fork declared in their `west.yml` manifests.
 
-### Environment
+## Environment
 
 ```bash
 conda create -n qeaas_esp32_client python=3.12 -y
 conda activate qeaas_esp32_client
-pip install -r requirements.txt  # installs west
+pip install -r requirements.txt
 ```
 
-### Zephyr Dependency
-
-This client depends on a Zephyr fork that includes the custom BLAKE2s entropy pool driver:
-
-* Zephyr fork: [fj-blanco/zephyr@entropy-pool](https://github.com/fj-blanco/zephyr/tree/entropy-pool)
-
-The `west.yml` manifest pulls this branch automatically. Use upstream Zephyr only if you don't need the entropy pool enhancements.
-
-### Build & Test Application (mbedTLS client)
+WiFi credentials can be passed on the command line or loaded from `.env`:
 
 ```bash
-./scripts/build.sh --wifi-ssid <SSID> --wifi-pass <PASS> --init
-./scripts/build.sh --wifi-ssid <SSID> --wifi-pass <PASS> --clean --flash --monitor
+cp .env.example .env
 ```
 
-## Devicetree Configuration
+## wolfSSL Client
 
-Add an overlay declaring the entropy pool and linking the hardware RNG:
+Initialize the workspace:
 
-```dts
-/ {
-    chosen {
-        zephyr,entropy = &entropy_blake2s;
-    };
-
-    entropy_blake2s: entropy-blake2s-pool {
-        compatible = "zephyr,entropy-blake2s-pool";
-        hardware-device = <&trng0>;    // Your hardware entropy source
-        status = "okay";
-    };
-};
+```bash
+./scripts/build.sh --backend wolfssl --init
 ```
 
-## Related Projects
+Build, flash, and monitor a plain CoAP client:
 
-For wolfSSL + PQC CoAP client examples see: [coap-zephyr-clients](https://github.com/fj-blanco/coap-zephyr-clients)
+```bash
+./scripts/build.sh --backend wolfssl --wifi-ssid SSID --wifi-pass PASS \
+  --clean --flash --monitor
+```
 
-This repository focuses on the entropy pool implementation and validation.
+Build a DTLS client using ECDHE P-256 and ECDSA:
+
+```bash
+./scripts/build.sh --backend wolfssl --use-dtls --groups P-256 \
+  --wifi-ssid SSID --wifi-pass PASS --clean --flash --monitor
+```
+
+Build a DTLS client using ML-KEM-512 and ML-DSA-44:
+
+```bash
+./scripts/build.sh --backend wolfssl --use-dtls --groups ML_KEM_512 \
+  --sig ML_DSA_44 --wifi-ssid SSID --wifi-pass PASS --clean --flash --monitor
+```
+
+For certificate verification, clone the QEaaS server into the repository root:
+
+```bash
+git clone https://github.com/qursa-uc3m/qeaas-server.git
+```
+
+The build runs `scripts/generate_ca_header.sh` to embed the available ECDSA and
+ML-DSA CA certificates. Use `--no-verify` for a build that skips peer
+certificate verification.
+
+## Entropy-Pool Validation
+
+Initialize and build the validation application:
+
+```bash
+./scripts/build_entropy_test.sh --init
+./scripts/build_entropy_test.sh --clean --flash --monitor
+```
+
+## Architecture
+
+```text
+Application
+    -> entropy_get_entropy()
+BLAKE2s Entropy Pool
+    -> entropy_get_entropy() on backend_dev
+ESP32 hardware entropy driver
+```
